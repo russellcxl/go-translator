@@ -10,29 +10,43 @@ import (
 	"golang.org/x/text/language"
 	"html"
 	"io"
-	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
-	"path"
-	"path/filepath"
 	"strings"
 )
 
-func main() {
-	files, err := ioutil.ReadDir("images")
-	if err != nil {
-		log.Fatalf("failed to read images: %s\n", err.Error())
-	}
+func generalHTTP() {
+	http.HandleFunc("/bye", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "bye")
+	})
 
-	for _, f := range files {
-		fmt.Printf("will read from %s; will write to %s.txt\n", f.Name(), strings.TrimSuffix(f.Name(), filepath.Ext(f.Name())))
-		in := path.Join("images", f.Name())
-		out := path.Join("output", fmt.Sprintf("%s.txt", strings.TrimSuffix(f.Name(), filepath.Ext(f.Name()))))
-		fmt.Println(in, out)
-		if err := readAndTranslate(in, out, "en"); err != nil {
-			log.Fatalln(err.Error())
-		}
-	}
+	http.HandleFunc("/hello", func(w http.ResponseWriter, r *http.Request){
+		fmt.Fprintf(w, "hello")
+	})
+
+	log.Println("server starting on http://localhost:8081")
+	log.Fatal(http.ListenAndServe(":8081", nil))
+}
+
+func main() {
+
+	generalHTTP()
+
+	//files, err := ioutil.ReadDir("images")
+	//if err != nil {
+	//	log.Fatalf("failed to read images: %s\n", err.Error())
+	//}
+	//
+	//for _, f := range files {
+	//	fmt.Printf("will read from %s; will write to %s.txt\n", f.Name(), strings.TrimSuffix(f.Name(), filepath.Ext(f.Name())))
+	//	in := path.Join("images", f.Name())
+	//	out := path.Join("output", fmt.Sprintf("%s.txt", strings.TrimSuffix(f.Name(), filepath.Ext(f.Name()))))
+	//	fmt.Println(in, out)
+	//	if err := readAndTranslate(in, out, "en"); err != nil {
+	//		log.Fatalln(err.Error())
+	//	}
+	//}
 }
 
 func readAndTranslate(inPath, outPath, outputLang string) error {
