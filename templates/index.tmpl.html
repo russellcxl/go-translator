@@ -1,16 +1,29 @@
 <!DOCTYPE html>
-<html lang="EN">
+<html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <title>HELLO</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
 </head>
 <body>
-<div>
-    <form action="/form">
-        <label for="img">Select image:</label>
-        <input type="file" id="img" name="img" accept="image/*">
-        <input type="submit">
+    <form
+            enctype="multipart/form-data"
+            action="http://localhost:8080/upload"
+            method="post"
+    >
+        <input type="file" name="myFile" />
+        <input type="submit" value="upload" />
     </form>
-</div>
+
+    <form
+            id="form"
+            enctype="multipart/form-data"
+            action="http://localhost:8080/uploadFiles"
+            method="POST"
+    >
+        <input class="input file-input" type="file" name="myFiles" multiple />
+        <button class="button" type="submit">upload</button>
+    </form>
 </body>
 </html>
