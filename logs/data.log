@@ -1,0 +1,4 @@
+||--INFO-----|| 2022/05/31 18:28:00 logger.go:49: hello
+||--INFO-----|| 2022/05/31 18:28:00 logger.go:53: hello russell
+||--WARNING--|| 2022/05/31 18:28:00 logger.go:57: warning
+||--ERROR----|| 2022/05/31 18:28:00 logger.go:65: error

@@ -27,6 +27,7 @@ func NewTranslator(in, out, lang string) *Translator {
 	}
 }
 
+//TODO: add checks for non-images
 func (t *Translator) Execute() error {
 	files, err := ioutil.ReadDir(t.InputDir)
 	if err != nil {

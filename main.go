@@ -2,13 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/russellcxl/go-translator/server"
+	"github.com/russellcxl/go-translator/pkg/logger"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"time"
 )
@@ -17,47 +15,9 @@ const (
 	MAX_UPLOAD_SIZE = 1024 * 1024
 )
 
-func imgUploadHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("File Upload Endpoint Hit")
-
-	// Parse our multipart form, 10 << 20 specifies a maximum
-	// upload of 10 MB files.
-	r.ParseMultipartForm(10 << 20)
-	// FormFile returns the first file for the given key `myFile`
-	// it also returns the FileHeader so we can get the Filename,
-	// the Header and the size of the file
-	file, handler, err := r.FormFile("myFile")
-	if err != nil {
-		fmt.Println("Error Retrieving the File")
-		fmt.Println(err)
-		return
-	}
-	defer file.Close()
-	fmt.Printf("Uploaded File: %+v\n", handler.Filename)
-	fmt.Printf("File Size: %+v\n", handler.Size)
-	fmt.Printf("MIME Header: %+v\n", handler.Header)
-
-	// Create a temporary file within our temp-images directory that follows
-	// a particular naming pattern
-	tempFile, err := ioutil.TempFile("images", "upload-*.png")
-	if err != nil {
-		fmt.Println(err)
-	}
-	defer tempFile.Close()
-
-	// read all of the contents of our uploaded file into a
-	// byte array
-	fileBytes, err := ioutil.ReadAll(file)
-	if err != nil {
-		fmt.Println(err)
-	}
-	// write this byte array to our temporary file
-	tempFile.Write(fileBytes)
-	// return that we have successfully uploaded our file!
-	fmt.Fprintf(w, "Successfully Uploaded File\n")
-}
-
 func filesUploadHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("File Upload Endpoint Hit")
+
 	if r.Method != "POST" {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -138,24 +98,29 @@ func filesUploadHandler(w http.ResponseWriter, r *http.Request) {
 func generalHTTP() {
 	fileServer := http.FileServer(http.Dir("templates"))
 	http.Handle("/", fileServer)
-	http.HandleFunc("/upload", imgUploadHandler)
-	http.HandleFunc("/uploadFiles", filesUploadHandler)
+	http.HandleFunc("/upload", filesUploadHandler)
 
 
 	fmt.Printf("Starting server at port 8080\n")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		log.Fatal(err)
 	}
-	exec.Command("open", "http://localhost:8080/").Output()
 }
 
 func main() {
 
-	generalHTTP()
+	//generalHTTP()
 
-	err := server.NewTranslator("images", "output", "en").Execute()
-	if err != nil {
-		log.Fatalln(err)
-	}
+	//err := server.NewTranslator("images", "output", "en").Execute()
+	//if err != nil {
+	//	log.Fatalln(err)
+	//}
+
+	l := logger.NewLogger("./logs")
+	l.InitLogger()
+	l.Info("hello")
+	l.Infof("hello %s\n", "russell")
+	l.Warn("warning")
+	l.Error("error")
 
 }
