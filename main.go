@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/russellcxl/go-translator/config"
 	"github.com/russellcxl/go-translator/pkg/logger"
+	"github.com/russellcxl/go-translator/server"
 	"io"
 	"log"
 	"net/http"
@@ -110,17 +112,16 @@ func generalHTTP() {
 func main() {
 
 	//generalHTTP()
+	clog := logger.NewLogger("./logs")
+	clog.InitLogger()
 
-	//err := server.NewTranslator("images", "output", "en").Execute()
-	//if err != nil {
-	//	log.Fatalln(err)
-	//}
+	cfg, err := config.LoadConfig("./config/config.json")
+	if err != nil {
+		clog.Fatalf("failed to read config: %s\n", err.Error())
+	}
 
-	l := logger.NewLogger("./logs")
-	l.InitLogger()
-	l.Info("hello")
-	l.Infof("hello %s\n", "russell")
-	l.Warn("warning")
-	l.Error("error")
-
+	err = server.NewTranslator(clog, cfg).Execute()
+	if err != nil {
+		clog.Fatal(err.Error())
+	}
 }

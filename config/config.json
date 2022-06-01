@@ -2,8 +2,8 @@
   "logger": {
   },
   "translator": {
-    "in_dir": "/images/input",
-    "out_dir": "/images/output",
+    "in_dir": "images/input",
+    "out_dir": "images/output",
     "out_lang": "en"
   }
 }

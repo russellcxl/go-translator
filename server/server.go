@@ -4,10 +4,10 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"github.com/russellcxl/go-translator/config"
 	"github.com/russellcxl/go-translator/pkg/logger"
 	"html"
 	"io/ioutil"
-	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -15,55 +15,63 @@ import (
 )
 
 type Translator struct {
-	logger     logger.Logger
-	InputDir   string
-	OutputDir  string
-	OutputLang string
+	logger logger.Logger
+	config *config.Config
 }
 
-func NewTranslator(in, out, lang string) *Translator {
+func NewTranslator(logger logger.Logger, cfg *config.Config ) *Translator {
 	return &Translator{
-		InputDir:   in,
-		OutputDir:  out,
-		OutputLang: lang,
+		logger: logger,
+		config: cfg,
 	}
 }
 
-//TODO: add checks for non-images
 func (t *Translator) Execute() error {
-	files, err := ioutil.ReadDir(t.InputDir)
+	clog := t.logger
+
+	files, err := ioutil.ReadDir(t.config.Translator.InDir)
 	if err != nil {
-		log.Fatalf("failed to read from input directory: %s\n", err.Error())
+		clog.Errorf("failed to read from input directory: %s\n", err.Error())
 		return err
 	}
 
 	for _, f := range files {
-		log.Printf("will read from %s; will write to %s.txt\n", f.Name(), strings.TrimSuffix(f.Name(), filepath.Ext(f.Name())))
+		fileExt := filepath.Ext(f.Name())
+		if fileExt != ".jpg" && fileExt != ".jpeg" && fileExt != ".png" {
+			clog.Errorf("file %s not the correct type\n", f.Name())
+			continue
+		}
 
-		in := path.Join("images", f.Name())
+		clog.Infof("will read from %s; will write to %s.txt\n", f.Name(), strings.TrimSuffix(f.Name(), filepath.Ext(f.Name())))
+
+		in := path.Join(t.config.Translator.InDir, f.Name())
 		outFile := fmt.Sprintf("%s.txt", strings.TrimSuffix(f.Name(), filepath.Ext(f.Name())))
-		out := path.Join(t.OutputDir, outFile)
+		out := path.Join(t.config.Translator.OutDir, outFile)
 
-		if err = readAndTranslate(in, out, t.OutputLang); err != nil {
+		if err = t.readAndTranslate(in, out, t.config.Translator.OutLang); err != nil {
 			return err
 		}
+
+		clog.Infof("successfully read and translated file: %s\n", f.Name())
 	}
 	return nil
 }
 
-func readAndTranslate(inPath, outPath, outputLang string) error {
+func (t *Translator) readAndTranslate(inPath, outPath, outputLang string) error {
+	clog := t.logger
+
 	buf := new(bytes.Buffer)
 
 	err := detectText(buf, inPath)
 	if err != nil {
-		log.Printf("failed to detect text: %s\n", err.Error())
+		clog.Errorf("failed to detect text: %s\n", err.Error())
 		return err
 	}
 
 	// prepare output file
 	fo, err := os.Create(outPath)
 	if err != nil {
-		log.Printf("failed to create output file: %s\n", err.Error())
+		clog.Errorf("failed to create output file: %s\n", err.Error())
 		return err
 	}
 	defer fo.Close()
@@ -78,7 +86,7 @@ func readAndTranslate(inPath, outPath, outputLang string) error {
 			break
 		}
 		if err != nil {
-			log.Printf("failed to read: %s\n", err.Error())
+			clog.Errorf("failed to read: %s\n", err.Error())
 			return err
 		}
 
@@ -90,17 +98,16 @@ func readAndTranslate(inPath, outPath, outputLang string) error {
 		// translate cleaned string
 		translatedText, err := translateText(outputLang, str)
 		if err != nil {
-			log.Printf("failed to translate: %s\n", err.Error())
+			clog.Errorf("failed to translate: %s\n", err.Error())
 			return err
 		}
 
-		// print translated text
-		fmt.Printf("\n%s\n", html.UnescapeString(translatedText))
+		//fmt.Printf("\n%s\n", html.UnescapeString(translatedText))
 
 		// write translated text to file
 		_, err = fo.Write([]byte(html.UnescapeString(translatedText)))
 		if err != nil {
-			log.Printf("failed to write to output: %s\n", err.Error())
+			clog.Errorf("failed to write to output: %s\n", err.Error())
 			return err
 		}
 
