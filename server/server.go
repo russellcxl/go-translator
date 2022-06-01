@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"github.com/russellcxl/go-translator/pkg/logger"
 	"html"
 	"io/ioutil"
 	"log"
@@ -14,6 +15,7 @@ import (
 )
 
 type Translator struct {
+	logger     logger.Logger
 	InputDir   string
 	OutputDir  string
 	OutputLang string

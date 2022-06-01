@@ -1,5 +1,9 @@
 {
   "logger": {
-    "log_path": "./logs"
+  },
+  "translator": {
+    "in_dir": "/images/input",
+    "out_dir": "/images/output",
+    "out_lang": "en"
   }
 }
