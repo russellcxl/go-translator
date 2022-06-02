@@ -1,4 +1,0 @@
-||--INFO-----|| 2022/06/01 20:54:27 logger.go:54: will read from 1.png; will write to 1.txt
-||--INFO-----|| 2022/06/01 20:54:30 logger.go:54: successfully read and translated file: 1.png
-||--INFO-----|| 2022/06/01 20:54:30 logger.go:54: will read from 2.png; will write to 2.txt
-||--INFO-----|| 2022/06/01 20:54:32 logger.go:54: successfully read and translated file: 2.png

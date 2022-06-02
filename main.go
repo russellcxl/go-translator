@@ -118,10 +118,11 @@ func main() {
 	cfg, err := config.LoadConfig("./config/config.json")
 	if err != nil {
 		clog.Fatalf("failed to read config: %s\n", err.Error())
+		return
 	}
 
 	err = server.NewTranslator(clog, cfg).Execute()
 	if err != nil {
-		clog.Fatal(err.Error())
+		clog.Fatalf(err.Error())
 	}
 }
