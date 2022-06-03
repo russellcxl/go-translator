@@ -12,23 +12,29 @@
 <div class="container" style="margin: 5rem">
 
     <div class="row">
-        <div class="col-4">
+        <div class="col-6">
             <div class="mb-3">
                 <form enctype="multipart/form-data" action="http://localhost:8080/upload" method="post">
-                    <label for="formFileMultiple" class="form-label">Multiple files input</label>
-                    <input class="form-control" type="file" name="myFiles" id="formFileMultiple" multiple>
-                    <button style="margin-top: 1rem" type="submit" class="btn btn-primary" value="upload">Upload</button>
+                    <div style="display: flex; align-items: flex-end">
+                        <div style="max-width: 70%">
+                            <label for="formFileMultiple" class="form-label">Multiple files input</label>
+                            <input class="form-control" type="file" name="myFiles" id="formFileMultiple" multiple>
+                        </div>
+                        <div style="max-width: 20%; margin-left: 5px">
+                            <button type="submit" class="btn btn-primary" value="upload">
+                                Upload
+                            </button>
+                        </div>
+                    </div>
                 </form>
             </div>
         </div>
-        <div class="col-8">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Card title</h5>
-                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                </div>
-            </div>
+        <div class="col-6">
         </div>
+    </div>
+
+    <div class="row">
+        <textfield style="height: 50vh; background-color: bisque; padding: 10px">hello</textfield>
     </div>
 </div>
 

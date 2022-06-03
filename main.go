@@ -112,6 +112,8 @@ func generalHTTP() {
 func main() {
 
 	//generalHTTP()
+
+
 	clog := logger.NewLogger("./logs")
 	clog.InitLogger()
 
