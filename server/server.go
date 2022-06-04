@@ -19,7 +19,7 @@ type Translator struct {
 	config *config.Config
 }
 
-func NewTranslator(logger logger.Logger, cfg *config.Config ) *Translator {
+func NewTranslator(logger logger.Logger, cfg *config.Config) *Translator {
 	return &Translator{
 		logger: logger,
 		config: cfg,
@@ -76,33 +76,33 @@ func (t *Translator) readAndTranslate(inPath, outPath, outputLang string) error 
 	}
 	defer fo.Close()
 
-	// translate api cannot take in too many bytes at once
-	temp := make([]byte, 2048)
 	r := bufio.NewReader(buf)
 
-	for {
-		n, err := r.Read(temp)
-		if n == 0 {
-			break
-		}
-		if err != nil {
-			clog.Errorf("failed to read: %s\n", err.Error())
-			return err
+	// read until '\n' because for some reason, the file is read twice
+	b, err := r.ReadBytes('\n')
+	if err != nil {
+		clog.Errorf("failed to read: %s\n", err.Error())
+		return err
+	}
+
+	var currByte int
+	batchSize := 1024
+	for currByte <= len(b) {
+
+		var str string
+		if len(b) - currByte < batchSize {
+			str = string(b[currByte:])
+		} else {
+			str = string(b[currByte:currByte+batchSize])
 		}
 
-		// clean the string
-		str := string(temp[:n])
-		str = strings.ReplaceAll(str, `"`, "")
-		str = strings.TrimSpace(str)
-
-		// translate cleaned string
+		// translate cleaned
 		translatedText, err := translateText(outputLang, str)
 		if err != nil {
-			clog.Errorf("failed to translate: %s\n", err.Error())
 			return err
 		}
 
-		//fmt.Printf("\n%s\n", html.UnescapeString(translatedText))
+		fmt.Printf("\n%s\n", html.UnescapeString(translatedText))
 
 		// write translated text to file
 		_, err = fo.Write([]byte(html.UnescapeString(translatedText)))
@@ -111,6 +111,7 @@ func (t *Translator) readAndTranslate(inPath, outPath, outputLang string) error 
 			return err
 		}
 
+		currByte+=batchSize
 	}
 
 	return nil
