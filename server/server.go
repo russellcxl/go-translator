@@ -96,8 +96,7 @@ func (t *Translator) readAndTranslate(inPath, outPath, outputLang string) error 
 			str = string(b[currByte:currByte+batchSize])
 		}
 
-		// translate cleaned
-		translatedText, err := translateText(outputLang, str)
+		translatedText, err := t.translateText(outputLang, str)
 		if err != nil {
 			return err
 		}

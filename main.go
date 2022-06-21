@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/russellcxl/go-translator/config"
 	"github.com/russellcxl/go-translator/pkg/logger"
@@ -9,15 +10,17 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
-	"time"
 )
 
 const (
 	MAX_UPLOAD_SIZE = 1024 * 1024
 )
 
-func filesUploadHandler(w http.ResponseWriter, r *http.Request) {
+var (
+	Port string
+)
+
+func handleUpload(w http.ResponseWriter, r *http.Request) {
 	log.Println("File Upload Endpoint Hit")
 
 	if r.Method != "POST" {
@@ -73,13 +76,13 @@ func filesUploadHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = os.MkdirAll("uploads", os.ModePerm)
+		err = os.MkdirAll("images/input", os.ModePerm)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		f, err := os.Create(fmt.Sprintf("uploads/%d%s", time.Now().UnixNano(), filepath.Ext(fileHeader.Filename)))
+		f, err := os.Create(fmt.Sprintf("images/input/%s", fileHeader.Filename))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -94,25 +97,30 @@ func filesUploadHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	fmt.Fprintf(w, "Upload successful")
+	htmlTemp := `
+	<div>hello</div>
+	<button>button</button>
+`
+
+	fmt.Fprintf(w, htmlTemp)
 }
 
-func generalHTTP() {
-	fileServer := http.FileServer(http.Dir("templates"))
-	http.Handle("/", fileServer)
-	http.HandleFunc("/upload", filesUploadHandler)
-
-
-	fmt.Printf("Starting server at port 8080\n")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
-		log.Fatal(err)
-	}
+func init() {
+	flag.StringVar(&Port, "port", "", "port for http")
+	flag.Parse()
 }
 
 func main() {
 
-	//generalHTTP()
+	fileServer := http.FileServer(http.Dir("templates"))
+	http.Handle("/", fileServer)
+	http.HandleFunc("/upload", handleUpload)
 
+
+	fmt.Printf("Starting server at port %s\n", Port)
+	if err := http.ListenAndServe(fmt.Sprintf(":%s", Port), nil); err != nil {
+		log.Fatal(err)
+	}
 
 	clog := logger.NewLogger("./logs")
 	clog.InitLogger()
